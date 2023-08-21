@@ -16,7 +16,7 @@ export async function authRoutes(app: FastifyInstance) {
       null,
       {
         params:{
-          client_id: process.env.GITHUB_CLIEBNT_ID,
+          client_id: process.env.GITHUB_CLIENT_ID,
           client_secret: process.env.GITHUB_CLIENT_SECRET,
           code, 
         },
@@ -27,9 +27,9 @@ export async function authRoutes(app: FastifyInstance) {
     )
 
     const {access_token}= accessTokenResponse.data
-    const userResponde= await axios.get('https://github.com/user',{
+    const userResponse= await axios.get('https://api.github.com/user',{
       headers:{
-        Authorization: `Bearer${access_token}`,
+        Authorization: `Bearer ${access_token}`,
       }
     })
 
@@ -39,7 +39,7 @@ export async function authRoutes(app: FastifyInstance) {
       name: z.string(),
       avatar_url: z.string().url(),
     })
-    const userInfo= userSchema.parse(userResponde.data)
+    const userInfo= userSchema.parse(userResponse.data)
 
     let user = await prisma.user.findUnique({
       where:{
@@ -67,7 +67,7 @@ export async function authRoutes(app: FastifyInstance) {
     })
 
     return {
-      token
+      token,
     }
   })
 }
